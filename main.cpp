@@ -10,6 +10,7 @@
 #include <QPushButton>
 
 #include "LeptonThread.h"
+#include "PiCamThread.h"
 #include "MyLabel.h"
 
 int main( int argc, char **argv )

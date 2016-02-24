@@ -4,7 +4,6 @@
 #include <ctime>
 #include <stdint.h>
 #include </usr/local/include/pigpio.h>
-#include </usr/local/include/raspicam/raspicam.h>
 
 #include <QThread>
 #include <QtCore>
@@ -34,7 +33,6 @@ signals:
   void updateImage(QImage);
 
 private:
-  bool thermal;
   QImage myImage;
 
   uint8_t result[PACKET_SIZE*PACKETS_PER_FRAME];
