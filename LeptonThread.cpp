@@ -23,8 +23,8 @@ void LeptonThread::run()
 	//open spi port
     //SpiOpenPort(0);
     int fd;
-    gpioInitialise();
-    fd = spiOpen(1, 16000000, (1<<8)|(1<<4) | 3);
+    //gpioInitialise();
+    fd = spiOpen(1, 20000000, (1<<8)|(1<<4) | 3);
 
     if (fd < 0) {
         qDebug()<<"Error opening spi port"<<endl;
@@ -56,9 +56,6 @@ void LeptonThread::run()
 
                 }
             }
-        }
-        if(resets >= 30) {
-            //qDebug() << "done reading, resets: " << resets;
         }
 
         frameBuffer = (uint16_t *)rxBuf;

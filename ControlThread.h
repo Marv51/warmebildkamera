@@ -1,8 +1,7 @@
 #ifndef CONTROLTHREAD_H
 #define CONTROLTHREAD_H
 
-#include <wiringPi.h>
-#include <pigpio.h>
+#include </usr/local/include/pigpio.h>
 #include <QImage>
 #include <ctime>
 #include <stdint.h>
@@ -21,8 +20,7 @@ public:
     void run();
 
     enum States{Thermal, Camera, Mixed};
-    //Button 1: gpioPin 17, Button 2: gpioPin 22, Button 3: gpioPin 23, Button 4: gpioPin 27
-    enum TFTButtons{Button1=0, Button2=3, Button3=4, Button4=2}; //This crap was defined by wiringPi library
+    enum TFTButtons{Button1=17, Button2=22, Button3=23, Button4=27};
 
 public slots:
   void setThermalImage(QImage);
@@ -45,6 +43,8 @@ private:
     bool printThermalImage;
     int captureCount;
     QImage createMixedImage();
+    QMutex cameraMutex;
+    QMutex thermalMutex;
 };
 
 #endif // CONTROLTHREAD_H

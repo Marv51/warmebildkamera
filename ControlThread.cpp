@@ -19,14 +19,9 @@ QImage ControlThread::createMixedImage(){
 
 void ControlThread::run(){
 
-    if(wiringPiSetup()){
-        qDebug() << "wiringSetup Failed" << endl;
-        return;
-    }
-
     mixedImage = QImage(640, 480 , QImage::Format_ARGB32_Premultiplied);
 
-    state = Thermal;
+    state = Mixed;
     hasCameraImage = false;
     hasThermalImage = false;
     Button1Pressed = false;
@@ -35,47 +30,60 @@ void ControlThread::run(){
     printCameraImage = false;
     printThermalImage = false;
 
-    pinMode(Button1, INPUT);
-    pinMode(Button2, INPUT);
-    pinMode(Button3, INPUT);
-    pinMode(Button4, INPUT);
+    gpioSetMode(Button1, PI_INPUT);
+    gpioSetMode(Button2, PI_INPUT);
+    gpioSetMode(Button3, PI_INPUT);
+    gpioSetMode(Button4, PI_INPUT);
 
-    pullUpDnControl(Button1, PUD_UP);
-    pullUpDnControl(Button2, PUD_UP);
-    pullUpDnControl(Button3, PUD_UP);
-    pullUpDnControl(Button4, PUD_UP);
+    gpioSetPullUpDown(Button1, PI_PUD_UP);
+    gpioSetPullUpDown(Button2, PI_PUD_UP);
+    gpioSetPullUpDown(Button3, PI_PUD_UP);
+    gpioSetPullUpDown(Button4, PI_PUD_UP);
+
+    int buttonTimer = 0;
 
     captureCount = 0;
     while(true){
 
-        if(digitalRead(Button4) == LOW && !Button1Pressed){
-            Button1Pressed = true;
-//            qDebug() << "switch" << endl;
-            state = (States)((state+1)%3); //%2 disables mixed mode, change to %3 for using mixed mode.
+        buttonTimer ++;
 
-        } else if(digitalRead(Button4) == HIGH){
-            Button1Pressed = false;
-        }
+        if (buttonTimer >= 10000)
+        {
+            buttonTimer = 0;
 
-        if(digitalRead(Button3) == LOW && !Button2Pressed) {
-            printCameraImage = true;
-            printThermalImage = true;
-            qDebug() << "printImages" << endl;
-        } else if(digitalRead(Button3) == HIGH){
-            Button2Pressed = false;
+            if(gpioRead(Button4) == PI_LOW && !Button1Pressed){
+                Button1Pressed = true;
+                //qDebug() << "switch" << endl;
+                state = (States)((state+1)%3); //%2 disables mixed mode, change to %3 for using mixed mode.
+
+            } else if(gpioRead(Button4) == PI_HIGH){
+                Button1Pressed = false;
+            }
+
+            if(gpioRead(Button3) == PI_LOW && !Button2Pressed) {
+                printCameraImage = true;
+                printThermalImage = true;
+                qDebug() << "printImages" << endl;
+            } else if(gpioRead(Button3) == PI_HIGH){
+                Button2Pressed = false;
+            }
         }
 
         switch (state){
             case Thermal:
                 if(hasThermalImage){
+                    thermalMutex.lock();
                     emit updateImage(thermalImage);
+                    thermalMutex.unlock();
 //                    qDebug() << "Setting CameraFrame" << endl;
                     hasThermalImage = false;
                 }
                 break;
             case Camera:
                 if(hasCameraImage){
+                    cameraMutex.lock();
                     emit updateImage(cameraImage);
+                    cameraMutex.unlock();
 //                    qDebug() << "Setting CameraFrame" << endl;
                     hasCameraImage = false;
                 }
@@ -83,7 +91,11 @@ void ControlThread::run(){
 
             case Mixed:
                 if(hasCameraImage && hasThermalImage){
+                    cameraMutex.lock();
+                    thermalMutex.lock();
                     emit updateImage(createMixedImage());
+                    cameraMutex.unlock();
+                    thermalMutex.unlock();
                     hasCameraImage = false;
                     hasThermalImage = false;
                 }
@@ -94,7 +106,9 @@ void ControlThread::run(){
 }
 
 void ControlThread::setThermalImage(QImage image){
+    thermalMutex.lock();
     thermalImage = image;
+    thermalMutex.unlock();
     if(printThermalImage){
         thermalImage.save("/home/pi/thermal.png");
 //      thermalImage.save(QString("home/pi/thermal%1.png").arg(captureCount).toStdString().c_str());
@@ -105,7 +119,10 @@ void ControlThread::setThermalImage(QImage image){
 }
 
 void ControlThread::setCameraImage(QImage image){
+    cameraMutex.lock();
     cameraImage = image;
+    cameraMutex.unlock();
+    usleep(5);
     if(printCameraImage){
         cameraImage.save("/home/pi/camera.png");
 //        cameraImage.save(QString("home/pi/camera%1.png").arg(captureCount).toStdString().c_str());

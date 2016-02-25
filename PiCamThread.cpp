@@ -16,7 +16,7 @@ void initCamera(raspicam::RaspiCam &Camera ) {
     Camera.setShutterSpeed( 0);
     Camera.setISO (400);
 
-    Camera.setVideoStabilization ( true );
+    Camera.setVideoStabilization ( false );
     Camera.setExposureCompensation ( 1 );
 
     Camera.setAWB_RB(1, 1);

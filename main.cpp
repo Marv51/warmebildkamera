@@ -17,6 +17,7 @@
 #include <QKeyEvent>
 #include <QKeySequence>
 #include "MyLabel.h"
+#include </usr/local/include/pigpio.h>
 
 int main( int argc, char **argv )
 {
@@ -36,6 +37,8 @@ int main( int argc, char **argv )
 	MyLabel myLabel(myWidget);
     myLabel.setGeometry(0, 0, 640, 480);
 	myLabel.setPixmap(QPixmap::fromImage(myImage));
+
+    gpioInitialise();
 
     ControlThread *controlThread = new ControlThread();
     QObject::connect(controlThread, SIGNAL(updateImage(QImage)), &myLabel, SLOT(setImage(QImage)));
