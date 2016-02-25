@@ -12,6 +12,10 @@
 #include "LeptonThread.h"
 #include "PiCamThread.h"
 #include "ControlThread.h"
+#include <QShortcut>
+#include <QShortcutEvent>
+#include <QKeyEvent>
+#include <QKeySequence>
 #include "MyLabel.h"
 
 int main( int argc, char **argv )
@@ -38,7 +42,7 @@ int main( int argc, char **argv )
 //	QPushButton *button1 = new QPushButton("Perform FFC", myWidget);
 //	button1->setGeometry(320/2-50, 290-35, 100, 30);
 
-	//create a thread to gather SPI data
+    //create a thread to gather SPI data
 	//when the thread emits updateImage, the label should update its image accordingly
     ControlThread *controlThread = new ControlThread();
 

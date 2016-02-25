@@ -38,12 +38,12 @@ void PiCamThread::run()
     //wait a while until camera stabilizes
     //cout<<"Sleeping for 3 secs"<<endl;
     //sleep(3);
-
+    myImage = QImage(Camera.getWidth(),Camera.getHeight() , QImage::Format_RGB888);
     while(true) {
 
         //Camera.setCaptureSize(640, 480);
 
-        myImage = QImage(Camera.getWidth(),Camera.getHeight() , QImage::Format_RGB888);
+
 
 //        printf("Size: %d", Camera.getImageTypeSize ( raspicam::RASPICAM_FORMAT_RGB ));
         //allocate memory

@@ -24,7 +24,7 @@ void LeptonThread::run()
     //SpiOpenPort(0);
     int fd;
     gpioInitialise();
-    fd = spiOpen(1, 8000000, (1<<8)|(1<<4) | 3);
+    fd = spiOpen(1, 16000000, (1<<8)|(1<<4) | 3);
 
     if (fd < 0) {
         qDebug()<<"Error opening spi port"<<endl;
@@ -34,10 +34,9 @@ void LeptonThread::run()
     char txBuf[PACKET_SIZE] = {0, };
     char rxBuf[PACKET_SIZE * PACKETS_PER_FRAME];
 
-
+    myImage = QImage(80, 60, QImage::Format_RGB888);
     while(true) {
-        myImage = QImage(80, 60, QImage::Format_RGB888);
-        //read data packets from lepton over SPI
+      //read data packets from lepton over SPI
         int resets = 0;
         for(int j=0;j<PACKETS_PER_FRAME;j++) {
             //if it's a drop packet, reset j to 0, set to -1 so he'll be at 0 again loop
