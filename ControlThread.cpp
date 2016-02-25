@@ -5,7 +5,6 @@ ControlThread::ControlThread() : QThread()
 }
 
 QImage ControlThread::createMixedImage(){
-    QImage mixedImage = QImage(640, 480 , QImage::Format_ARGB32_Premultiplied);
     QPainter painter(&mixedImage);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.fillRect(mixedImage.rect(), Qt::transparent);
@@ -14,16 +13,19 @@ QImage ControlThread::createMixedImage(){
     painter.setCompositionMode(QPainter::CompositionMode_Overlay);
     painter.drawImage(0, 0, thermalImage.scaled(mixedImage.size()));
     painter.end();
+
     return mixedImage;
 }
 
 void ControlThread::run(){
 
-
     if(wiringPiSetup()){
         qDebug() << "wiringSetup Failed" << endl;
         return;
     }
+
+    mixedImage = QImage(640, 480 , QImage::Format_ARGB32_Premultiplied);
+
     state = Thermal;
     hasCameraImage = false;
     hasThermalImage = false;
@@ -68,7 +70,6 @@ void ControlThread::run(){
                 if(hasThermalImage){
                     emit updateImage(thermalImage);
 //                    qDebug() << "Setting CameraFrame" << endl;
-
                     hasThermalImage = false;
                 }
                 break;

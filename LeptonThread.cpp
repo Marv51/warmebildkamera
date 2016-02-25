@@ -40,7 +40,6 @@ void LeptonThread::run()
         int resets = 0;
         for(int j=0;j<PACKETS_PER_FRAME;j++) {
             //if it's a drop packet, reset j to 0, set to -1 so he'll be at 0 again loop
-            //read(spi_cs0_fd, result+sizeof(uint8_t)*PACKET_SIZE*j, sizeof(uint8_t)*PACKET_SIZE);
             spiXfer(fd, txBuf, rxBuf + j*PACKET_SIZE, PACKET_SIZE);
 
             int packetNumber = rxBuf[j*PACKET_SIZE + 1];
@@ -108,18 +107,11 @@ void LeptonThread::run()
 
 		//lets emit the signal for update
 		emit updateImage(myImage);
-//        myImage.save("/home/pi/test.png");
-//        break;
 
 	}
 	
 	//finally, close SPI port just bcuz
-    //SpiClosePort(0);
     spiClose(fd);
 
 }
 
-void LeptonThread::performFFC() {
-	//perform FFC
-    //lepton_perform_ffc();
-}

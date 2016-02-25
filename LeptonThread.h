@@ -25,9 +25,6 @@ public:
 
   void run();
 
-public slots:
-  void performFFC();
-
 signals:
   void updateText(QString);
   void updateImage(QImage);

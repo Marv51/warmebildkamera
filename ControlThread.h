@@ -35,6 +35,8 @@ private:
     States state;
     QImage thermalImage;
     QImage cameraImage;
+    QImage mixedImage;
+
     bool hasCameraImage;
     bool hasThermalImage;
     bool Button1Pressed;
