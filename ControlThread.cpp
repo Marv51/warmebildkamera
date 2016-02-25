@@ -21,7 +21,7 @@ void ControlThread::run(){
 
     mixedImage = QImage(640, 480 , QImage::Format_ARGB32_Premultiplied);
 
-    state = Mixed;
+    state = Thermal;
     hasCameraImage = false;
     hasThermalImage = false;
     Button1Pressed = false;
@@ -47,7 +47,7 @@ void ControlThread::run(){
 
         buttonTimer ++;
 
-        if (buttonTimer >= 10000)
+        if (buttonTimer >= 10)
         {
             buttonTimer = 0;
 
@@ -61,9 +61,9 @@ void ControlThread::run(){
             }
 
             if(gpioRead(Button3) == PI_LOW && !Button2Pressed) {
-                printCameraImage = true;
-                printThermalImage = true;
-                qDebug() << "printImages" << endl;
+                Button2Pressed = true;
+                saveImages();
+//              qDebug() << "printImages" << endl;
             } else if(gpioRead(Button3) == PI_HIGH){
                 Button2Pressed = false;
             }
@@ -101,34 +101,56 @@ void ControlThread::run(){
                 }
                 break;
         }
-
+        //saveImages();
+        usleep(1000);
     }
+}
+
+void ControlThread::saveImages(){
+
+    cameraMutex.lock();
+    thermalMutex.lock();
+    time_t time = std::time(0);
+    stringStream.str("");
+    stringStream << "/home/pi/share/" << time << "thermal.png";
+    std::string string = stringStream.str();
+    if(!thermalImage.isNull()){
+        thermalImage.save(string.c_str());
+    }
+    stringStream.str("");
+    stringStream << "/home/pi/share/" << time << "camera.png";
+    string = stringStream.str();
+    if(!cameraImage.isNull()){
+        cameraImage.save(string.c_str());
+    }
+    stringStream.str("");
+    stringStream << "/home/pi/share/" << time << "mixed.png";
+    qDebug();
+    string = stringStream.str();
+    createMixedImage();
+    mixedImage.save(string.c_str());
+
+    cameraMutex.unlock();
+    thermalMutex.unlock();
 }
 
 void ControlThread::setThermalImage(QImage image){
-    thermalMutex.lock();
-    thermalImage = image;
-    thermalMutex.unlock();
-    if(printThermalImage){
-        thermalImage.save("/home/pi/thermal.png");
-//      thermalImage.save(QString("home/pi/thermal%1.png").arg(captureCount).toStdString().c_str());
-        printThermalImage = false;
+    if (thermalMutex.tryLock(10))
+    {
+        thermalImage = image;
+        thermalMutex.unlock();
+        hasThermalImage = true;
     }
-
-    hasThermalImage = true;
 }
 
 void ControlThread::setCameraImage(QImage image){
-    cameraMutex.lock();
-    cameraImage = image;
-    cameraMutex.unlock();
-    usleep(5);
-    if(printCameraImage){
-        cameraImage.save("/home/pi/camera.png");
-//        cameraImage.save(QString("home/pi/camera%1.png").arg(captureCount).toStdString().c_str());
-        printCameraImage = false;
+    if (cameraMutex.tryLock(10))
+    {
+        cameraImage = image;
+        cameraMutex.unlock();
+        usleep(5);
+        hasCameraImage = true;
     }
-    hasCameraImage = true;
 }
 
 

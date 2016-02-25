@@ -52,7 +52,7 @@ void LeptonThread::run()
                 if(resets == 750) {
                     spiClose(fd);
                     usleep(750000);
-                    fd = spiOpen(1, 8000000, (1<<8)|(1<<4) | 3);
+                    fd = spiOpen(1, 20000000, (1<<8)|(1<<4) | 3);
 
                 }
             }
