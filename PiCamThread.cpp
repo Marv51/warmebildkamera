@@ -5,6 +5,7 @@ PiCamThread::PiCamThread() : QThread()
 {
 }
 
+// initializes the camera, it wont't run without this!
 void initCamera(raspicam::RaspiCam &Camera ) {
     Camera.setWidth (1280);
     Camera.setHeight ( 960);
@@ -20,10 +21,9 @@ void initCamera(raspicam::RaspiCam &Camera ) {
     Camera.setExposureCompensation ( 1 );
 
     Camera.setAWB_RB(1, 1);
-
 }
 
-
+// Thread for communicating with the raspberry camera
 void PiCamThread::run()
 {
     raspicam::RaspiCam Camera;
@@ -36,22 +36,24 @@ void PiCamThread::run()
     }
 
     myImage = QImage(Camera.getWidth(),Camera.getHeight() , QImage::Format_RGB888);
+    unsigned char *data=new unsigned char[  Camera.getImageBufferSize( )];
+
     while(true) {
 
-        unsigned char *data=new unsigned char[  Camera.getImageBufferSize( )];
-        // setting header for ppm image
+        // setting header for ppm image, this is needed to save it directly into a QImage
         std::string header = "P6\n 1280 960 255\n";
-        //extract the image in rgb format
+
+        //take a picture and retrieve the data from the buffer in the camera
         Camera.grab();
         Camera.retrieve(data);
 
+        // combines the header and the camera data and saves it into a QImage
         header.append((char*)data, Camera.getImageBufferSize( ));
         myImage.loadFromData((const unsigned char * )header.c_str(), header.length(), "PPM");
+
         //lets emit the signal for update
-        emit updateImage(myImage);
-        delete data;
+        emit updateImage(myImage);        
     }
-
+    delete data;
     Camera.release();
-
 }

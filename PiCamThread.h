@@ -21,7 +21,6 @@ public:
     void run();
 
 signals:
-    void updateText(QString);
     void updateImage(QImage);
 
 public slots:

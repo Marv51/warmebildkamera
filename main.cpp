@@ -38,8 +38,10 @@ int main( int argc, char **argv )
     myLabel.setGeometry(0, 0, 640, 480);
 	myLabel.setPixmap(QPixmap::fromImage(myImage));
 
+    // initialize all GPIO Pins, needed for the SPI Bus and Stuff (pgpio Library)
     gpioInitialise();
 
+    // create all Threads
     ControlThread *controlThread = new ControlThread();
     QObject::connect(controlThread, SIGNAL(updateImage(QImage)), &myLabel, SLOT(setImage(QImage)));
 
@@ -49,10 +51,12 @@ int main( int argc, char **argv )
     PiCamThread *cameraThread = new PiCamThread();
     QObject::connect(cameraThread, SIGNAL(updateImage(QImage)), controlThread, SLOT(setCameraImage(QImage)));
 
+    // start the threads
     controlThread->start();
     cameraThread->start();
     thermalThread->start();
 	
+    // start the application into fullscreen
     myWidget->showFullScreen();
 
 	return a.exec();

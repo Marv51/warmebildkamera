@@ -1,15 +1,7 @@
 #include "LeptonThread.h"
 
 #include "Palettes.h"
-#include "SPI.h"
 #include "Lepton_I2C.h"
-
-#define PACKET_SIZE 164
-#define PACKET_SIZE_UINT16 (PACKET_SIZE/2)
-#define PACKETS_PER_FRAME 60
-#define FRAME_SIZE_UINT16 (PACKET_SIZE_UINT16*PACKETS_PER_FRAME)
-#define FPS 27;
-
 
 LeptonThread::LeptonThread() : QThread()
 {
@@ -18,12 +10,21 @@ LeptonThread::LeptonThread() : QThread()
 LeptonThread::~LeptonThread() {
 }
 
+// Thread for communicating with the thermal camera
 void LeptonThread::run()
 {
-	//open spi port
-    //SpiOpenPort(0);
     int fd;
-    //gpioInitialise();
+
+    /*
+    Opens an SPI Connection
+    spiFlags consists of the least significant 22 bits.
+
+    21 20 19 18 17 16 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+     b  b  b  b  b  b  R  T  n  n  n  n  W  A u2 u1 u0 p2 p1 p0  m  m
+
+    SPI 1, 20Mhz, AuxileryMode (Activates SPI1 for RPI2), Chip Select active High, SPI Mode 3
+    Further information under man pigpio
+    */
     fd = spiOpen(1, 20000000, (1<<8)|(1<<4) | 3);
 
     if (fd < 0) {
@@ -87,6 +88,7 @@ void LeptonThread::run()
             row = i / PACKET_SIZE_UINT16 ;
         }
 
+        // Converts greyscale image from the thermal image to a different palette
         float diff = maxValue - minValue;
         float scale = 255/diff;
         QRgb color;
@@ -107,7 +109,7 @@ void LeptonThread::run()
 
 	}
 	
-	//finally, close SPI port just bcuz
+    //finally, close SPI port
     spiClose(fd);
 
 }
