@@ -60,7 +60,7 @@ void LeptonThread::run()
             }
         }
         if(resets >= 30) {
-            qDebug() << "done reading, resets: " << resets;
+            //qDebug() << "done reading, resets: " << resets;
         }
 
         frameBuffer = (uint16_t *)rxBuf;
@@ -109,12 +109,15 @@ void LeptonThread::run()
 
 		//lets emit the signal for update
 		emit updateImage(myImage);
+//        myImage.save("/home/pi/test.png");
+//        break;
 
 	}
 	
 	//finally, close SPI port just bcuz
     //SpiClosePort(0);
     spiClose(fd);
+
 }
 
 void LeptonThread::performFFC() {

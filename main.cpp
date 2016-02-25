@@ -11,6 +11,7 @@
 
 #include "LeptonThread.h"
 #include "PiCamThread.h"
+#include "ControlThread.h"
 #include "MyLabel.h"
 
 int main( int argc, char **argv )
@@ -20,23 +21,12 @@ int main( int argc, char **argv )
 	
 	QWidget *myWidget = new QWidget;
     myWidget->setGeometry(640, 480, 340, 290);
-    //myWidget->setWindowState(Qt::WindowFullScreen);
 
 	//create an image placeholder for myLabel
-	//fill the top left corner with red, just bcuz
 	QImage myImage;
     int width = myWidget->width();
     int height = myWidget->height();
     myImage = QImage(width, height, QImage::Format_RGB888);
-	QRgb red = qRgb(255,0,0);
-//	for(int i=0;i<80;i++) {
-//		for(int j=0;j<60;j++) {
-//			myImage.setPixel(i, j, red);
-//		}
-//	}
-
-//    QLabel imageLabel = new QLabel();
-//    imageLabel.setPixmap();
 
 	//create a label, and set it's image to the placeholder
 	MyLabel myLabel(myWidget);
@@ -50,12 +40,22 @@ int main( int argc, char **argv )
 
 	//create a thread to gather SPI data
 	//when the thread emits updateImage, the label should update its image accordingly
-	LeptonThread *thread = new LeptonThread();
-	QObject::connect(thread, SIGNAL(updateImage(QImage)), &myLabel, SLOT(setImage(QImage)));
+    ControlThread *controlThread = new ControlThread();
+
+    LeptonThread *thermalThread = new LeptonThread();
+    QObject::connect(thermalThread, SIGNAL(updateImage(QImage)), controlThread, SLOT(setThermalImage(QImage)));
+
+    PiCamThread *cameraThread = new PiCamThread();
+    QObject::connect(cameraThread, SIGNAL(updateImage(QImage)), controlThread, SLOT(setCameraImage(QImage)));
+    QObject::connect(controlThread, SIGNAL(updateImage(QImage)), &myLabel, SLOT(setImage(QImage)));
+
+
 	
 	//connect ffc button to the thread's ffc action
 //	QObject::connect(button1, SIGNAL(clicked()), thread, SLOT(performFFC()));
-	thread->start();
+    controlThread->start();
+    cameraThread->start();
+    thermalThread->start();
 	
     //myWidget->show();
     myWidget->showFullScreen();

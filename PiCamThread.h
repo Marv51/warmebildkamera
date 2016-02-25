@@ -8,6 +8,7 @@
 #include <QtCore>
 #include <QPixmap>
 #include <QImage>
+#include <QTime>
 
 #include </usr/local/include/raspicam/raspicam.h>
 
