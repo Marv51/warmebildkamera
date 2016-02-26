@@ -3,5 +3,6 @@ Makefile
 gen_objs
 gen_mocs
 *.o
+*.pro.user
 raspberrypi_video
 
