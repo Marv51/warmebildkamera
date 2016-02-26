@@ -19,9 +19,72 @@ QImage ControlThread::createMixedImage(){
     return mixedImage;
 }
 
+void ControlThread::printSuccessMsg() {
+    bool hasImage = false;
+
+    // check which camera image should be shown on the screen
+    switch (state){
+        case Thermal:
+            if(hasThermalImage){
+                thermalMutex.lock();
+                image = thermalImage;
+                thermalMutex.unlock();
+                hasThermalImage = false;
+                hasImage = true;
+            }
+            break;
+        case Camera:
+            if(hasCameraImage){
+                cameraMutex.lock();
+                image = cameraImage;
+                cameraMutex.unlock();
+                hasCameraImage = false;
+                hasImage = true;
+            }
+            break;
+
+        case Mixed:
+            if(hasCameraImage && hasThermalImage){
+                cameraMutex.lock();
+                thermalMutex.lock();
+                image = createMixedImage();
+                cameraMutex.unlock();
+                thermalMutex.unlock();
+                hasCameraImage = false;
+                hasThermalImage = false;
+                hasImage = true;
+            }
+            break;
+    }
+
+
+    if (hasImage) {
+        image = image.scaled(640, 480, Qt::KeepAspectRatio);
+
+        if (showSuccessMsg > 0) {
+            showSuccessMsg--;
+            image = writeTextToImage(image, "Image saved!");
+        }
+
+        emit updateImage(image);
+    }
+}
+
+QImage ControlThread::writeTextToImage(QImage img, const QString str){
+    QPainter painter(&img);
+    QFont font = painter.font();
+    font.setPointSize(32);
+    painter.setFont(font);
+    painter.drawText(30, 224, str);
+    painter.end();
+    return img;
+}
+
 void ControlThread::run(){
 
     mixedImage = QImage(640, 480 , QImage::Format_ARGB32_Premultiplied);
+    showSuccessMsg = 0;
+    showSaveMsg = false;
 
     state = Thermal;
     hasCameraImage = false;
@@ -31,6 +94,7 @@ void ControlThread::run(){
 
     printCameraImage = false;
     printThermalImage = false;
+
 
     // sets all input pins for the tft buttons
     gpioSetMode(Button1, PI_INPUT);
@@ -47,6 +111,7 @@ void ControlThread::run(){
     int buttonTimer = 0;
 
     captureCount = 0;
+
     while(true){
 
         buttonTimer ++;
@@ -79,38 +144,7 @@ void ControlThread::run(){
         }
 
         // check which camera image should be shown on the screen
-        switch (state){
-            case Thermal:
-                if(hasThermalImage){
-                    thermalMutex.lock();
-                    emit updateImage(thermalImage);
-                    thermalMutex.unlock();
-//                    qDebug() << "Setting CameraFrame" << endl;
-                    hasThermalImage = false;
-                }
-                break;
-            case Camera:
-                if(hasCameraImage){
-                    cameraMutex.lock();
-                    emit updateImage(cameraImage);
-                    cameraMutex.unlock();
-//                    qDebug() << "Setting CameraFrame" << endl;
-                    hasCameraImage = false;
-                }
-                break;
-
-            case Mixed:
-                if(hasCameraImage && hasThermalImage){
-                    cameraMutex.lock();
-                    thermalMutex.lock();
-                    emit updateImage(createMixedImage());
-                    cameraMutex.unlock();
-                    thermalMutex.unlock();
-                    hasCameraImage = false;
-                    hasThermalImage = false;
-                }
-                break;
-        }
+        printSuccessMsg();
         // short sleep, prevents button toggeling
         // also good for keeping frames around 30 fps
         usleep(1000);
@@ -122,25 +156,22 @@ void ControlThread::saveImages(){
 
     cameraMutex.lock();
     thermalMutex.lock();
-    time_t time = std::time(0);
-    stringStream.str("");
-    stringStream << "/home/pi/share/" << time << "thermal.png";
-    std::string string = stringStream.str();
+
+    showSaveMsg = true;
+
+    emit updateImage(writeTextToImage(image, "Saving..."));
+
+    QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd-hh-mm-ss");
+
     if(!thermalImage.isNull()){
-        thermalImage.save(string.c_str());
+        thermalImage.save(QString("/home/pi/share/%1-thermal.png").arg(time), 0, 75);
     }
-    stringStream.str("");
-    stringStream << "/home/pi/share/" << time << "camera.png";
-    string = stringStream.str();
     if(!cameraImage.isNull()){
-        cameraImage.save(string.c_str());
+        cameraImage.save(QString("/home/pi/share/%1-camera.png").arg(time), 0, 75);
     }
-    stringStream.str("");
-    stringStream << "/home/pi/share/" << time << "mixed.png";
-    qDebug();
-    string = stringStream.str();
-    createMixedImage();
-    mixedImage.save(string.c_str());
+    createMixedImage().save(QString("/home/pi/share/%1-mixed.png").arg(time), 0, 75);
+
+    showSuccessMsg = 15;
 
     cameraMutex.unlock();
     thermalMutex.unlock();

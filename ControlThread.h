@@ -39,6 +39,8 @@ private:
     QImage cameraImage;
     QImage mixedImage;
 
+    QImage image;
+
     bool hasCameraImage;
     bool hasThermalImage;
     bool Button1Pressed;
@@ -46,7 +48,11 @@ private:
     bool printCameraImage;
     bool printThermalImage;
     int captureCount;
+    int showSuccessMsg;
+    bool showSaveMsg;
     QImage createMixedImage();
+    void printSuccessMsg();
+    QImage writeTextToImage(QImage, const QString);
     QMutex cameraMutex;
     QMutex thermalMutex;
     std::stringstream stringStream;
