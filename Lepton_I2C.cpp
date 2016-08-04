@@ -3,6 +3,7 @@
 #include "leptonSDKEmb32PUB/LEPTON_SDK.h"
 #include "leptonSDKEmb32PUB/LEPTON_SYS.h"
 #include "leptonSDKEmb32PUB/LEPTON_Types.h"
+#include "leptonSDKEmb32PUB/LEPTON_AGC.h"
 
 bool _connected;
 
@@ -10,6 +11,9 @@ LEP_CAMERA_PORT_DESC_T _port;
 
 int lepton_connect() {
 	LEP_OpenPort(1, LEP_CCI_TWI, 400, &_port);
+
+    //LEP_SetAgcEnableState(&_port, LEP_AGC_ENABLE);
+
 	_connected = true;
 	return 0;
 }

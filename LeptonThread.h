@@ -22,8 +22,12 @@ class LeptonThread : public QThread
 public:
   LeptonThread();
   ~LeptonThread();
-
+  uint16_t *frameBuffer;
   void run();
+
+public slots:
+  void minValChanged(int);
+  void maxValChanged(int);
 
 signals:
   void updateText(QString);
@@ -33,7 +37,10 @@ private:
   QImage myImage;
 
   uint8_t result[PACKET_SIZE*PACKETS_PER_FRAME];
-  uint16_t *frameBuffer;
+
+
+  int minValue;
+  int maxValue;
 
 };
 

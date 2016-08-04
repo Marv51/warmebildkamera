@@ -22,7 +22,7 @@ static const uint qt_meta_data_MyLabel[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       1,   14, // methods
+       2,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -30,13 +30,15 @@ static const uint qt_meta_data_MyLabel[] = {
        0,       // signalCount
 
  // slots: signature, parameters, type, tag, flags
-       8,   25,   25,   25, 0x0a,
+       8,   32,   32,   32, 0x0a,
+      33,   32,   32,   32, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_MyLabel[] = {
-    "MyLabel\0setImage(QImage)\0\0"
+    "MyLabel\0setThermalImage(QImage)\0\0"
+    "setImage(QImage)\0"
 };
 
 void MyLabel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -45,7 +47,8 @@ void MyLabel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
         Q_ASSERT(staticMetaObject.cast(_o));
         MyLabel *_t = static_cast<MyLabel *>(_o);
         switch (_id) {
-        case 0: _t->setImage((*reinterpret_cast< QImage(*)>(_a[1]))); break;
+        case 0: _t->setThermalImage((*reinterpret_cast< QImage(*)>(_a[1]))); break;
+        case 1: _t->setImage((*reinterpret_cast< QImage(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -83,9 +86,9 @@ int MyLabel::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 2;
     }
     return _id;
 }

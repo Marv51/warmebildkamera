@@ -2,9 +2,13 @@
 
 #include "Palettes.h"
 #include "Lepton_I2C.h"
+#include <iostream>
 
-LeptonThread::LeptonThread() : QThread()
-{
+using namespace std;
+
+LeptonThread::LeptonThread() : QThread(){
+    minValue = 7900;
+    maxValue = 8300;
 }
 
 LeptonThread::~LeptonThread() {
@@ -62,8 +66,8 @@ void LeptonThread::run()
         frameBuffer = (uint16_t *)rxBuf;
         int row, column;
         uint16_t value;
-        uint16_t minValue = 65535;
-        uint16_t maxValue = 0;
+        //uint16_t minValue = 65535;
+        //uint16_t maxValue = 0;
 
 
         for(int i=0;i<FRAME_SIZE_UINT16;i++) {
@@ -78,25 +82,29 @@ void LeptonThread::run()
             rxBuf[i*2+1] = temp;
 
             value = frameBuffer[i];
-            if(value > maxValue) {
+            /*if(value > maxValue) {
                 maxValue = value;
             }
             if(value < minValue) {
                 minValue = value;
-            }
+            }*/
             column = i % PACKET_SIZE_UINT16 - 2;
             row = i / PACKET_SIZE_UINT16 ;
         }
 
+
+        /*cout << "maxValue: " << maxValue << endl;
+        cout << "minValue: " << minValue << endl;*/
+
         // Converts greyscale image from the thermal image to a different palette
-        float diff = maxValue - minValue;
-        float scale = 255/diff;
         QRgb color;
+        double diff = 255.0 / (double) (maxValue - minValue);
         for(int i=0;i<FRAME_SIZE_UINT16;i++) {
             if(i % PACKET_SIZE_UINT16 < 2) {
                 continue;
             }
-            value = (frameBuffer[i] - minValue) * scale;
+
+            value = max(0.0d, min(255.0d, (frameBuffer[i] - minValue) * diff));
             const int *colormap = colormap_ironblack;
             color = qRgb(colormap[3*value], colormap[3*value+1], colormap[3*value+2]);
             column = (i % PACKET_SIZE_UINT16 ) - 2;
@@ -112,5 +120,13 @@ void LeptonThread::run()
     //finally, close SPI port
     spiClose(fd);
 
+}
+
+void LeptonThread::minValChanged(int input) {
+    minValue = input;
+}
+
+void LeptonThread::maxValChanged(int input) {
+    maxValue = input;
 }
 

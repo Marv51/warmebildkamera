@@ -10,9 +10,12 @@
 #include <QtCore>
 #include <QPixmap>
 #include <QString>
-#include <stdlib.h>
 #include <QPainter>
+#include <QFontMetrics>
+#include <QProcess>
+#include <stdlib.h>
 #include <string>
+#include <iostream>
 #include <sstream>
 
 class ControlThread : public QThread
@@ -29,9 +32,12 @@ public:
 public slots:
   void setThermalImage(QImage);
   void setCameraImage(QImage);
+  void setZoom(int value);
+  void finishedEncoding();
 
 signals:
   void updateImage(QImage);
+  void savedNewImage();
 
 private:
     States state;
@@ -43,16 +49,19 @@ private:
 
     bool hasCameraImage;
     bool hasThermalImage;
-    bool Button1Pressed;
+    bool Button4Pressed;
+    bool Button3Pressed;
     bool Button2Pressed;
+    bool recordVideo;
     bool printCameraImage;
     bool printThermalImage;
     int captureCount;
     int showSuccessMsg;
     bool showSaveMsg;
     QImage createMixedImage();
-    void printSuccessMsg();
+    void emitAndUpdateImage();
     QImage writeTextToImage(QImage, const QString);
+    double zoom_value;
     QMutex cameraMutex;
     QMutex thermalMutex;
     std::stringstream stringStream;

@@ -28,3 +28,6 @@ unix:LIBS += -L$${RPI_LIBS}/$${LEPTONSDK}/Debug -lLEPTON_SDK -lpigpio -lrt -lras
 
 unix:QMAKE_CLEAN += -r $(OBJECTS_DIR) $${MOC_DIR}
 
+OTHER_FILES += \
+    ffmpeg.sh
+

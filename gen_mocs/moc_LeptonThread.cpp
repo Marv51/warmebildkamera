@@ -22,7 +22,7 @@ static const uint qt_meta_data_LeptonThread[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       4,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -33,12 +33,17 @@ static const uint qt_meta_data_LeptonThread[] = {
       13,   33,   33,   33, 0x05,
       34,   33,   33,   33, 0x05,
 
+ // slots: signature, parameters, type, tag, flags
+      54,   33,   33,   33, 0x0a,
+      73,   33,   33,   33, 0x0a,
+
        0        // eod
 };
 
 static const char qt_meta_stringdata_LeptonThread[] = {
     "LeptonThread\0updateText(QString)\0\0"
-    "updateImage(QImage)\0"
+    "updateImage(QImage)\0minValChanged(int)\0"
+    "maxValChanged(int)\0"
 };
 
 void LeptonThread::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -49,6 +54,8 @@ void LeptonThread::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         switch (_id) {
         case 0: _t->updateText((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 1: _t->updateImage((*reinterpret_cast< QImage(*)>(_a[1]))); break;
+        case 2: _t->minValChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 3: _t->maxValChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -86,9 +93,9 @@ int LeptonThread::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 4)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 4;
     }
     return _id;
 }

@@ -1,8 +1,7 @@
 #include "PiCamThread.h"
 #include <fstream>
 
-PiCamThread::PiCamThread() : QThread()
-{
+PiCamThread::PiCamThread() : QThread(){
 }
 
 // initializes the camera, it wont't run without this!
@@ -24,8 +23,7 @@ void initCamera(raspicam::RaspiCam &Camera ) {
 }
 
 // Thread for communicating with the raspberry camera
-void PiCamThread::run()
-{
+void PiCamThread::run(){
     raspicam::RaspiCam Camera;
 
     initCamera(Camera);
