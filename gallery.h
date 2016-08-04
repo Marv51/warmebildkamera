@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QWidget>
 #include <QPushButton>
+#include <QProcess>
 #include <QDir>
 
 class Gallery : public QLabel
@@ -22,6 +23,7 @@ private slots:
     void changeImageMode();
     void closeGallery();
     void deleteCurrentImages();
+    void showLastVideo();
 
 private:
     QFileInfoList getImageList();

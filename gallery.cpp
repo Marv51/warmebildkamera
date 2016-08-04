@@ -22,10 +22,15 @@ Gallery::Gallery(QWidget *parent) : QLabel(parent), fullscreen(false), viewIndex
     close->resize(60, 60);
     QObject::connect(close, SIGNAL(released()), this, SLOT(closeGallery()));
 
-    QPushButton* delButton = new QPushButton("del", this);
+    QPushButton* delButton = new QPushButton("Del", this);
     delButton->move(10, 390);
     delButton->resize(60, 60);
     QObject::connect(delButton, SIGNAL(released()), this, SLOT(deleteCurrentImages()));
+
+    QPushButton* vidBUtton = new QPushButton("Video", this);
+    vidBUtton->move(280, 10);
+    vidBUtton->resize(60, 60);
+    QObject::connect(vidBUtton, SIGNAL(released()), this, SLOT(showLastVideo()));
 
     this->setStyleSheet("QPushButton {background-color: rgba(255,255,255,127)}");
     closeGallery();
@@ -95,6 +100,12 @@ void Gallery::deleteCurrentImages() {
     }
     if (getImageList().size() == 0) closeGallery();
     else showPrevImage();
+
+}
+
+void Gallery::showLastVideo() {
+    QProcess* proc = new QProcess();
+    proc->start("omxplayer", QStringList() << "/home/pi/share/test.avi");
 
 }
 
